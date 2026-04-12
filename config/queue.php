@@ -1,0 +1,18 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'default' => env('QUEUE_CONNECTION', 'sync'),
+
+    'connections' => [
+        'sync' => [
+            'driver' => 'sync',
+        ],
+    ],
+
+    'failed' => [
+        'driver' => env('QUEUE_FAILED_DRIVER', 'database-uuids'),
+        'table' => env('QUEUE_FAILED_TABLE', 'failed_jobs'),
+    ],
+];
