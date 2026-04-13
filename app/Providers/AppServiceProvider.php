@@ -15,6 +15,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        //
+        $passportClass = 'Laravel\\Passport\\Passport';
+
+        if (class_exists($passportClass)) {
+            $passportClass::authorizationView('oauth.authorize');
+        }
     }
 }
