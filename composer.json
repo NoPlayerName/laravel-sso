@@ -6,8 +6,12 @@
   "require": {
     "php": "^8.2",
     "laravel/framework": "^11.0",
+    "laravel/passport": "^13.7",
     "laravel/sanctum": "^4.0",
-    "laravel/tinker": "^2.9"
+    "laravel/tinker": "^2.9",
+    "symfony/css-selector": "^7.4",
+    "symfony/yaml": "^7.4",
+    "tijsverkoyen/css-to-inline-styles": "^2.3"
   },
   "require-dev": {
     "fakerphp/faker": "^1.23",
@@ -47,7 +51,10 @@
   "config": {
     "optimize-autoloader": true,
     "preferred-install": "dist",
-    "sort-packages": true
+    "sort-packages": true,
+    "allow-plugins": {
+      "php-http/discovery": false
+    }
   },
   "minimum-stability": "stable",
   "prefer-stable": true

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OAuthClientController;
 use App\Http\Controllers\PasswordResetController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,10 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
+
+    Route::get('/oauth/clients', [OAuthClientController::class, 'index'])->name('oauth.clients.index');
+    Route::post('/oauth/clients', [OAuthClientController::class, 'store'])->name('oauth.clients.store');
+    Route::delete('/oauth/clients/{clientId}', [OAuthClientController::class, 'destroy'])->name('oauth.clients.destroy');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

@@ -29,7 +29,7 @@ class AuthTokenController extends Controller
         ]);
 
         $tokenName = $data['client_name'] ?? 'default-client';
-        $token = $user->createToken($tokenName)->plainTextToken;
+        $token = $user->createToken($tokenName)->accessToken;
 
         return response()->json([
             'message' => 'User registered successfully.',
@@ -61,7 +61,7 @@ class AuthTokenController extends Controller
         $user = $request->user();
 
         $tokenName = $data['client_name'] ?? 'default-client';
-        $token = $user->createToken($tokenName)->plainTextToken;
+        $token = $user->createToken($tokenName)->accessToken;
 
         return response()->json([
             'message' => 'Login successful.',
@@ -91,7 +91,11 @@ class AuthTokenController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        $request->user()?->currentAccessToken()?->delete();
+        $token = $request->user()?->token();
+
+        if ($token !== null) {
+            $token->revoke();
+        }
 
         return response()->json([
             'message' => 'Token revoked successfully.',

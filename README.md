@@ -1,6 +1,6 @@
 # Laravel SSO
 
-Project Laravel ini memakai login lokal saja dengan Docker Compose. Tidak ada provider SSO eksternal.
+Project Laravel ini berfungsi sebagai auth server dengan Laravel Passport (OAuth2) + login lokal.
 
 ## Fitur
 
@@ -9,7 +9,8 @@ Project Laravel ini memakai login lokal saja dengan Docker Compose. Tidak ada pr
 - Reset password lokal via email log
 - Dashboard yang dilindungi session auth
 - Docker untuk app, Nginx, dan PostgreSQL
-- API token (Bearer) untuk integrasi banyak aplikasi
+- OAuth2 authorization server via Passport (`/oauth/*`)
+- API token (Bearer) untuk integrasi banyak aplikasi di `/api/v1/auth/*`
 
 ## Jalankan dengan Docker
 
@@ -27,12 +28,40 @@ docker compose up -d --build
 docker compose exec app php artisan migrate
 ```
 
-4. Buka aplikasi:
+4. Inisialisasi Passport (keys + tabel + client):
+
+```bash
+docker compose exec app php artisan passport:install
+```
+
+5. Buka aplikasi:
 
 - http://localhost:8080/register untuk membuat akun
 - http://localhost:8080/login untuk masuk
 - http://localhost:8080/forgot-password untuk minta reset password
 - http://localhost:8080/dashboard untuk halaman utama setelah login
+
+## OAuth2 SSO (untuk aplikasi lain)
+
+Endpoint standar OAuth2 dari Passport tersedia di:
+
+- `POST /oauth/token`
+- `GET|POST|DELETE /oauth/authorize`
+
+Contoh membuat client OAuth untuk aplikasi lain:
+
+```bash
+docker compose exec app php artisan passport:client --name="My Web Client" --provider=users --redirect_uri="http://localhost:8081/auth/callback"
+docker compose exec app php artisan passport:client --public --name="My PKCE Client" --provider=users --redirect_uri="http://localhost:8081/auth/callback"
+```
+
+Alternatif tanpa CLI:
+
+1. Login ke aplikasi (`/login`).
+2. Buka halaman `http://localhost:8080/oauth/clients`.
+3. Isi form `Nama Aplikasi`, `Jenis Client`, dan `Redirect URI`.
+4. Klik `Buat OAuth Client`.
+5. Simpan `Client ID` (dan `Client Secret` jika tipe Confidential) dari notifikasi hasil.
 
 ## API Auth Token (untuk aplikasi lain)
 
@@ -43,6 +72,7 @@ Semua endpoint API ada di prefix `/api/v1`.
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/register \
 	-H "Content-Type: application/json" \
+	-H "Accept: application/json" \
 	-d '{
 		"name":"Client User",
 		"email":"client@example.com",
@@ -57,6 +87,7 @@ curl -X POST http://localhost:8080/api/v1/auth/register \
 ```bash
 curl -X POST http://localhost:8080/api/v1/auth/login \
 	-H "Content-Type: application/json" \
+	-H "Accept: application/json" \
 	-d '{
 		"email":"client@example.com",
 		"password":"password123",
@@ -80,8 +111,8 @@ curl -X POST http://localhost:8080/api/v1/auth/logout \
 
 ## Detail akses database
 
-- Host: db
-- Port: 5432
+- Dari container (`app` ke `db`): `db:5432`
+- Dari host machine (DBeaver): `127.0.0.1:5433`
 - Database: laravel_sso
 - User: laravel
 - Password: secret
@@ -101,6 +132,6 @@ Catatan: container `app` sudah meng-install ekstensi PHP `pdo_pgsql` (dan `pdo_m
 
 ## Catatan
 
-- Project ini sengaja dibuat local auth only.
+- API guard memakai Passport (`auth:api`).
 - Email reset password dikirim ke `MAIL_MAILER=log`, jadi link-nya bisa dilihat di log aplikasi.
-- Jika Anda ingin nanti ditambah provider SSO tertentu, struktur ini sudah siap dikembangkan ke OAuth2/OIDC.
+- Untuk integrasi OIDC (ID Token + discovery/JWKS), diperlukan layer tambahan di atas OAuth2 Passport.

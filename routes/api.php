@@ -9,7 +9,7 @@ Route::prefix('v1')->group(function (): void {
     Route::post('/auth/register', [AuthTokenController::class, 'register']);
     Route::post('/auth/login', [AuthTokenController::class, 'login']);
 
-    Route::middleware('auth:sanctum')->group(function (): void {
+    Route::middleware('auth:api')->group(function (): void {
         Route::get('/auth/me', [AuthTokenController::class, 'me']);
         Route::post('/auth/logout', [AuthTokenController::class, 'logout']);
     });

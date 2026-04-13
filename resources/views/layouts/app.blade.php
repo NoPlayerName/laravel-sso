@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,7 +18,10 @@
             --accent-strong: #2563eb;
         }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             min-height: 100vh;
@@ -61,6 +65,28 @@
             margin: 0;
         }
 
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: 10px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
+
+        .nav-link.active {
+            border-color: rgba(96, 165, 250, 0.55);
+            color: #fff;
+            background: rgba(37, 99, 235, 0.28);
+        }
+
         .button {
             border: 1px solid rgba(96, 165, 250, 0.35);
             border-radius: 999px;
@@ -91,16 +117,25 @@
         }
     </style>
 </head>
+
 <body>
     <header class="nav">
         <div class="brand">
             <strong>{{ config('app.name', 'Laravel SSO') }}</strong>
             <span>Local login starter</span>
         </div>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button class="button" type="submit">Logout</button>
-        </form>
+        <div style="display:flex;align-items:center;gap:10px;">
+            <nav class="nav-links">
+                <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                    href="{{ route('dashboard') }}">Dashboard</a>
+                <a class="nav-link {{ request()->routeIs('oauth.clients.*') ? 'active' : '' }}"
+                    href="{{ route('oauth.clients.index') }}">OAuth Clients</a>
+            </nav>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button class="button" type="submit">Logout</button>
+            </form>
+        </div>
     </header>
 
     <main>
@@ -109,4 +144,5 @@
         </div>
     </main>
 </body>
+
 </html>
